@@ -1,11 +1,32 @@
+'use client'
+
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">CiTie Dashboard</h1>
-        <p className="text-gray-500 mb-8">Panel de administración</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">CiTie Dashboard</h1>
+            <p className="text-gray-500">Panel de administración</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-gray-500 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+          >
+            Cerrar sesión
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link href="/events" className="block p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 transition">
