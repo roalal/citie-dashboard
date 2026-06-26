@@ -102,18 +102,49 @@ export default function EventDetailPage() {
                 <p className="text-gray-500 text-sm">{cards.length} cards en este evento</p>
               </div>
               {event?.qr_code && (
-                <div className="flex flex-col items-center gap-2">
+                  <div id="event-qr" className="flex flex-col items-center gap-2">
                   <QRCodeSVG value={event.qr_code} size={100} />
                   <p className="text-xs text-gray-400">{event.qr_code}</p>
                 </div>
               )}
             </div>
-          <Link
-            href={`/events/${id}/cards/new`}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-          >
-            + Nueva card
-          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const svg = document.querySelector('#event-qr svg') as SVGElement
+                if (!svg) return
+                const canvas = document.createElement('canvas')
+                canvas.width = 400
+                canvas.height = 400
+                const ctx = canvas.getContext('2d')
+                if (!ctx) return
+                const img = new Image()
+                const svgData = new XMLSerializer().serializeToString(svg)
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+                const url = URL.createObjectURL(svgBlob)
+                img.onload = () => {
+                  ctx.fillStyle = 'white'
+                  ctx.fillRect(0, 0, 400, 400)
+                  ctx.drawImage(img, 0, 0, 400, 400)
+                  URL.revokeObjectURL(url)
+                  const a = document.createElement('a')
+                  a.download = `qr-${event?.name.replace(/\s+/g, '-').toLowerCase()}.png`
+                  a.href = canvas.toDataURL('image/png')
+                  a.click()
+                }
+                img.src = url
+              }}
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+            >
+              Descargar QR
+            </button>
+            <Link
+              href={`/events/${id}/cards/new`}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+            >
+              + Nueva card
+            </Link>
+          </div>
         </div>
 
         {cards.length === 0 ? (

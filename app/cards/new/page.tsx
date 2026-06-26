@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { QRCodeSVG } from 'qrcode.react'
 
-export default function NewCardPage() {
+export default function NewIndependentCardPage() {
   const router = useRouter()
-  const { id } = useParams()
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [url, setUrl] = useState('')
@@ -15,11 +15,11 @@ export default function NewCardPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [sortOrder, setSortOrder] = useState('0')
   const [activeFrom, setActiveFrom] = useState('')
   const [activeUntil, setActiveUntil] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [createdQr, setCreatedQr] = useState('')
 
   async function handleSubmit() {
     if (!title.trim()) {
@@ -59,34 +59,65 @@ export default function NewCardPage() {
     const qr_code = `citie-card-${Date.now()}`
 
     const { error } = await supabase.from('cards').insert({
-      event_id: id,
+      event_id: null,
       title: title.trim(),
       summary: summary.trim(),
       url: url.trim(),
       image_url: finalImageUrl,
-      sort_order: parseInt(sortOrder) || 0,
       active_from: activeFrom ? new Date(activeFrom).toISOString() : null,
       active_until: activeUntil ? new Date(activeUntil).toISOString() : null,
       qr_code,
-      is_triggered: false,
+      is_triggered: true,
     })
 
     if (error) {
-      setError('Error al crear la card: ' + error.message)
+      setError('Error al crear la tarjeta: ' + error.message)
       setLoading(false)
       return
     }
 
-    router.push(`/events/${id}`)
+    setCreatedQr(qr_code)
+    setLoading(false)
+  }
+
+  if (createdQr) {
+    return (
+      <main className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center gap-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Tarjeta creada!</h2>
+              <p className="text-gray-500 text-sm">Escanea este QR para acceder a la tarjeta</p>
+            </div>
+            <QRCodeSVG value={createdQr} size={200} />
+            <p className="text-xs text-gray-400 font-mono">{createdQr}</p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => window.print()}
+                className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+              >
+                Imprimir QR
+              </button>
+              <Link
+                href="/cards"
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition text-center"
+              >
+                Ver tarjetas
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
   }
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
-        <Link href={`/events/${id}`} className="text-sm text-blue-500 hover:underline mb-6 block">
-          ← Volver al evento
+        <Link href="/cards" className="text-sm text-blue-500 hover:underline mb-6 block">
+          ← Tarjetas
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nueva card</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nueva tarjeta independiente</h1>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-5">
           <div>
@@ -97,7 +128,7 @@ export default function NewCardPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ej. Bienvenida al congreso"
+              placeholder="Ej. Menú del restaurante"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -191,20 +222,6 @@ export default function NewCardPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Orden
-            </label>
-            <input
-              type="number"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              min="0"
-              className="w-32 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <p className="text-xs text-gray-400 mt-1">Define el orden en que aparece la card en el evento</p>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -216,7 +233,7 @@ export default function NewCardPage() {
                 onChange={(e) => setActiveFrom(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <p className="text-xs text-gray-400 mt-1">Opcional — déjalo vacío para sin restricción</p>
+              <p className="text-xs text-gray-400 mt-1">Opcional</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -228,7 +245,7 @@ export default function NewCardPage() {
                 onChange={(e) => setActiveUntil(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <p className="text-xs text-gray-400 mt-1">Opcional — déjalo vacío para sin restricción</p>
+              <p className="text-xs text-gray-400 mt-1">Opcional</p>
             </div>
           </div>
 
@@ -241,7 +258,7 @@ export default function NewCardPage() {
             disabled={loading || uploadingImage}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {uploadingImage ? 'Subiendo imagen...' : loading ? 'Creando...' : 'Crear card'}
+            {uploadingImage ? 'Subiendo imagen...' : loading ? 'Creando...' : 'Crear tarjeta'}
           </button>
         </div>
       </div>
