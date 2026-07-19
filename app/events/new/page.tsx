@@ -23,11 +23,18 @@ export default function NewEventPage() {
 
     const qr_code = `citie-event-${Date.now()}`
 
+   const { data: advertiserData } = await supabase
+      .from('advertisers')
+      .select('id')
+      .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id)
+      .single()
+
     const { data, error } = await supabase.from('events').insert({
       name: name.trim(),
       description: description.trim(),
       qr_code,
       status: 'draft',
+      advertiser_id: advertiserData?.id,
     }).select().single()
 
     if (error) {
