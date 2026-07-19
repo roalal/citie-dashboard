@@ -58,6 +58,12 @@ export default function NewCardPage() {
 
     const qr_code = `citie-card-${Date.now()}`
 
+    const { data: advertiserData } = await supabase
+      .from('advertisers')
+      .select('id')
+      .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id)
+      .single()
+
     const { error } = await supabase.from('cards').insert({
       event_id: id,
       title: title.trim(),
@@ -69,6 +75,7 @@ export default function NewCardPage() {
       active_until: activeUntil ? new Date(activeUntil).toISOString() : null,
       qr_code,
       is_triggered: false,
+      advertiser_id: advertiserData?.id,
     })
 
     if (error) {
