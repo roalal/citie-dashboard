@@ -12,14 +12,40 @@ export default function SetPasswordPage() {
   const [error, setError] = useState('')
   const [hasSession, setHasSession] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [invitedEmail, setInvitedEmail] = useState('')
 
   useEffect(() => {
-    checkSession()
+    processInviteToken()
   }, [])
 
-  async function checkSession() {
-    const { data } = await supabase.auth.getSession()
-    setHasSession(!!data.session)
+  async function processInviteToken() {
+    const hash = window.location.hash
+    const params = new URLSearchParams(hash.replace('#', ''))
+    const accessToken = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+
+    if (!accessToken || !refreshToken) {
+      setHasSession(false)
+      setCheckingSession(false)
+      return
+    }
+
+    // Cerrar cualquier sesión previa antes de establecer la nueva
+    await supabase.auth.signOut()
+
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    })
+
+    if (error || !data.session) {
+      setHasSession(false)
+      setCheckingSession(false)
+      return
+    }
+
+    setInvitedEmail(data.session.user.email || '')
+    setHasSession(true)
     setCheckingSession(false)
   }
 
@@ -73,7 +99,12 @@ export default function SetPasswordPage() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="bg-white rounded-xl border border-gray-200 p-8 w-full max-w-sm">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a CiTie</h1>
-        <p className="text-gray-500 text-sm mb-8">Crea tu contraseña para continuar</p>
+        <p className="text-gray-500 text-sm mb-2">
+          Creando contraseña para <strong>{invitedEmail}</strong>
+        </p>
+        <p className="text-gray-400 text-xs mb-8">
+          Si este correo no es correcto, cierra esta ventana y solicita una nueva invitación.
+        </p>
 
         <div className="flex flex-col gap-4">
           <div>
