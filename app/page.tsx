@@ -1,11 +1,24 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
+const ADMIN_EMAIL = 'saluton@citieapp.com'
+
 export default function Home() {
   const router = useRouter()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    checkIfAdmin()
+  }, [])
+
+  async function checkIfAdmin() {
+    const { data } = await supabase.auth.getUser()
+    setIsAdmin(data.user?.email === ADMIN_EMAIL)
+  }
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -20,12 +33,22 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">CiTie Dashboard</h1>
             <p className="text-gray-500">Panel de administración</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-gray-500 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-          >
-            Cerrar sesión
-          </button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Link
+                href="/admin/anunciantes"
+                className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+              >
+                Invitar anunciante
+              </Link>
+            )}
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-500 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
