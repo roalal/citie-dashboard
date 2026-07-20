@@ -20,17 +20,22 @@ export default function SetPasswordPage() {
 
   async function processInviteToken() {
     const hash = window.location.hash
+    console.log('HASH COMPLETO:', hash)
+    
     const params = new URLSearchParams(hash.replace('#', ''))
     const accessToken = params.get('access_token')
     const refreshToken = params.get('refresh_token')
+    
+    console.log('accessToken existe:', !!accessToken)
+    console.log('refreshToken existe:', !!refreshToken)
 
     if (!accessToken || !refreshToken) {
+      console.log('FALTA TOKEN - deteniendo aquí')
       setHasSession(false)
       setCheckingSession(false)
       return
     }
 
-    // Cerrar cualquier sesión previa antes de establecer la nueva
     await supabase.auth.signOut()
 
     const { data, error } = await supabase.auth.setSession({
@@ -38,7 +43,11 @@ export default function SetPasswordPage() {
       refresh_token: refreshToken,
     })
 
+    console.log('setSession data:', data)
+    console.log('setSession error:', error)
+
     if (error || !data.session) {
+      console.log('ERROR o sin sesión - mostrando enlace inválido')
       setHasSession(false)
       setCheckingSession(false)
       return
