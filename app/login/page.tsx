@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
@@ -8,6 +8,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [checkingInvite, setCheckingInvite] = useState(true)
+
+  useEffect(() => {
+    checkForInvite()
+  }, [])
+
+  function checkForInvite() {
+    const hash = window.location.hash
+    console.log('Hash detectado:', hash)
+    if (hash.includes('type=invite') || hash.includes('type=recovery')) {
+      console.log('Redirigiendo a set-password')
+      window.location.href = '/set-password' + hash
+      return
+    }
+    console.log('No se detectó invite, mostrando login normal')
+    setCheckingInvite(false)
+  }
 
   async function handleLogin() {
     setLoading(true)
@@ -18,9 +35,6 @@ export default function LoginPage() {
       password,
     })
 
-    console.log('data:', data)
-    console.log('error:', error)
-
     if (error) {
       setError('Correo o contraseña incorrectos')
       setLoading(false)
@@ -28,6 +42,14 @@ export default function LoginPage() {
     }
 
     window.location.href = '/'
+  }
+
+  if (checkingInvite) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400">Cargando...</p>
+      </main>
+    )
   }
 
   return (
