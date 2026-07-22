@@ -70,7 +70,14 @@ export default async function CardSharePage(
               Ver más
             </a>
           )}
-          <p className="text-center text-xs text-gray-400 mt-4">Compartido vía CiTie</p>
+          <a href="https://citieapp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full mt-3 border border-gray-200 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+          >
+            <span>Compartido por</span>
+            <img src="/logo_gris.png" alt="CiTie" className="h-4" />
+          </a>
         </div>
       </div>
     </main>
