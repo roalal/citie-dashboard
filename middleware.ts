@@ -5,7 +5,7 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('sb-access-token') || 
                 req.cookies.getAll().find(c => c.name.includes('auth-token'))
 
-  if (!token && req.nextUrl.pathname !== '/login' && req.nextUrl.pathname !== '/set-password') {
+  if (!token && req.nextUrl.pathname !== '/login' && req.nextUrl.pathname !== '/set-password' && !req.nextUrl.pathname.startsWith('/card/')) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
