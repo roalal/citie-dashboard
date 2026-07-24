@@ -23,7 +23,13 @@ export default function NewEventPage() {
 
     const qr_code = `citie-event-${Date.now()}`
 
-   const { data: advertiserData } = await supabase
+    const EVENT_COLORS = [
+      '#2563EB', '#16A34A', '#D97706', '#DB2777',
+      '#7C3AED', '#0D9488', '#DC2626', '#4B5563',
+    ]
+    const color = EVENT_COLORS[Math.floor(Math.random() * EVENT_COLORS.length)]
+
+    const { data: advertiserData } = await supabase
       .from('advertisers')
       .select('id')
       .eq('auth_user_id', (await supabase.auth.getUser()).data.user?.id)
@@ -35,6 +41,7 @@ export default function NewEventPage() {
       qr_code,
       status: 'draft',
       advertiser_id: advertiserData?.id,
+      color,
     }).select().single()
 
     if (error) {
