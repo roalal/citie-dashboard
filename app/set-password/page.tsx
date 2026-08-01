@@ -107,7 +107,7 @@ export default function SetPasswordPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="bg-white rounded-xl border border-gray-200 p-8 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a CiTie</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a Chitie</h1>
         <p className="text-gray-500 text-sm mb-2">
           Creando contraseña para <strong>{invitedEmail}</strong>
         </p>

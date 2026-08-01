@@ -30,7 +30,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">CiTie Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Chitie Dashboard</h1>
             <p className="text-gray-500">Panel de administración</p>
           </div>
           <div className="flex items-center gap-2">

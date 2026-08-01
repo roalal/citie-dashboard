@@ -23,15 +23,15 @@ export async function generateMetadata(
   const card = await getCard(id)
 
   if (!card) {
-    return { title: 'CiTie' }
+    return { title: 'Chitie' }
   }
 
   return {
     title: card.title,
-    description: card.summary || 'Descubre más en CiTie',
+    description: card.summary || 'Descubre más en Chitie',
     openGraph: {
       title: card.title,
-      description: card.summary || 'Descubre más en CiTie',
+      description: card.summary || 'Descubre más en Chitie',
       images: card.image_url ? [card.image_url] : [],
     },
   }
@@ -70,13 +70,13 @@ export default async function CardSharePage(
               Ver más
             </a>
           )}
-          <a href="https://citieapp.com"
+          <a href="https://chitie.app"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full mt-3 border border-gray-200 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
           >
             <span>Compartido por</span>
-            <img src="/logo_gris.png" alt="CiTie" className="h-4" />
+            <img src="/logo_gris.png" alt="Chitie" className="h-4" />
           </a>
         </div>
       </div>
