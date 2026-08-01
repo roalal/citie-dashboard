@@ -21,7 +21,7 @@ export default function NewEventPage() {
     setLoading(true)
     setError('')
 
-    const qr_code = `citie-event-${Date.now()}`
+    const qr_code = `chitie-event-${Date.now()}`
 
     const EVENT_COLORS = [
       '#2563EB', '#16A34A', '#D97706', '#DB2777',

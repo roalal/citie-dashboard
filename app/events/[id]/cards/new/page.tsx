@@ -56,7 +56,7 @@ export default function NewCardPage() {
       setUploadingImage(false)
     }
 
-    const qr_code = `citie-card-${Date.now()}`
+    const qr_code = `chitie-card-${Date.now()}`
 
     const { data: advertiserData } = await supabase
       .from('advertisers')
