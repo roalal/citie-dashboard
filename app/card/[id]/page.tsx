@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Metadata } from 'next'
+import Image from 'next/image'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,7 +59,9 @@ export default async function CardSharePage(
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="max-w-sm w-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
         {card.image_url && (
-          <img src={card.image_url} alt={card.title} className="w-full h-48 object-cover" />
+          <div className="relative w-full h-48">
+            <Image src={card.image_url} alt={card.title} fill className="object-cover" />
+          </div>
         )}
         <div className="p-6">
           <h1 className="text-lg font-bold text-gray-900 mb-2">{card.title}</h1>
@@ -76,7 +79,7 @@ export default async function CardSharePage(
             className="flex items-center justify-center gap-2 w-full mt-3 border border-gray-200 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
           >
             <span>Compartido por</span>
-            <img src="/logo_gris.png" alt="Chitie" className="h-4" />
+            <Image src="/logo_gris.png" alt="Chitie" width={753} height={241} className="h-4 w-auto" />
           </a>
         </div>
       </div>

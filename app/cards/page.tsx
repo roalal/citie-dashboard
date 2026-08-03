@@ -18,23 +18,35 @@ type Card = {
   created_at: string
 }
 
+const PAGE_SIZE = 50
+
 export default function CardsPage() {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
 
   useEffect(() => {
-    fetchCards()
+    fetchCards(0)
   }, [])
 
-  async function fetchCards() {
+  async function fetchCards(offset: number) {
+    if (offset === 0) setLoading(true)
+    else setLoadingMore(true)
+
     const { data, error } = await supabase
       .from('cards')
       .select('*')
       .is('event_id', null)
       .order('created_at', { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1)
 
-    if (!error && data) setCards(data)
+    if (!error && data) {
+      setCards((prev) => (offset === 0 ? data : [...prev, ...data]))
+      setHasMore(data.length === PAGE_SIZE)
+    }
     setLoading(false)
+    setLoadingMore(false)
   }
 
   async function toggleCard(id: string, current: boolean) {
@@ -42,13 +54,13 @@ export default function CardsPage() {
       .from('cards')
       .update({ is_triggered: !current })
       .eq('id', id)
-    fetchCards()
+    fetchCards(0)
   }
 
   async function deleteCard(id: string) {
     if (!confirm('¿Eliminar esta tarjeta?')) return
     await supabase.from('cards').delete().eq('id', id)
-    fetchCards()
+    fetchCards(0)
   }
 
   return (
@@ -146,6 +158,15 @@ export default function CardsPage() {
                 </div>
               </div>
             ))}
+            {hasMore && (
+              <button
+                onClick={() => fetchCards(cards.length)}
+                disabled={loadingMore}
+                className="self-center text-sm text-blue-500 hover:underline px-4 py-2 disabled:opacity-50"
+              >
+                {loadingMore ? 'Cargando...' : 'Cargar más'}
+              </button>
+            )}
           </div>
         )}
       </div>

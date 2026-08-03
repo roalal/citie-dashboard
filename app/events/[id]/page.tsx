@@ -34,17 +34,14 @@ export default function EventDetailPage() {
   }, [id])
 
   async function fetchData() {
-    const { data: eventData } = await supabase
-      .from('events')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    const { data: cardsData } = await supabase
-      .from('cards')
-      .select('*')
-      .eq('event_id', id)
-      .order('sort_order', { ascending: true })
+    const [{ data: eventData }, { data: cardsData }] = await Promise.all([
+      supabase.from('events').select('*').eq('id', id).single(),
+      supabase
+        .from('cards')
+        .select('*')
+        .eq('event_id', id)
+        .order('sort_order', { ascending: true }),
+    ])
 
     if (eventData) setEvent(eventData)
     if (cardsData) setCards(cardsData)

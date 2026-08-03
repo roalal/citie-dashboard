@@ -12,27 +12,39 @@ type Event = {
   created_at: string
 }
 
+const PAGE_SIZE = 50
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
 
   useEffect(() => {
-    fetchEvents()
+    fetchEvents(0)
   }, [])
 
-  async function fetchEvents() {
+  async function fetchEvents(offset: number) {
+    if (offset === 0) setLoading(true)
+    else setLoadingMore(true)
+
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .order('created_at', { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1)
 
-    if (!error && data) setEvents(data)
+    if (!error && data) {
+      setEvents((prev) => (offset === 0 ? data : [...prev, ...data]))
+      setHasMore(data.length === PAGE_SIZE)
+    }
     setLoading(false)
+    setLoadingMore(false)
   }
 
   async function updateStatus(id: string, status: string) {
     await supabase.from('events').update({ status }).eq('id', id)
-    fetchEvents()
+    fetchEvents(0)
   }
 
   const statusColor: Record<string, string> = {
@@ -99,6 +111,15 @@ export default function EventsPage() {
                 </div>
               </div>
             ))}
+            {hasMore && (
+              <button
+                onClick={() => fetchEvents(events.length)}
+                disabled={loadingMore}
+                className="self-center text-sm text-blue-500 hover:underline px-4 py-2 disabled:opacity-50"
+              >
+                {loadingMore ? 'Cargando...' : 'Cargar más'}
+              </button>
+            )}
           </div>
         )}
       </div>
