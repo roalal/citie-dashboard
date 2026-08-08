@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-
-const ADMIN_EMAIL = 'saluton@citieapp.com'
+import { ADMIN_EMAIL } from '@/lib/admin'
 
 export default function Home() {
   const router = useRouter()

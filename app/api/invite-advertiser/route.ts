@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { ADMIN_EMAIL } from '@/lib/admin'
 
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null
+
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const { data: callerData } = await supabaseAdmin.auth.getUser(token)
+    if (callerData?.user?.email !== ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    }
+
     const { email, name } = await req.json()
 
     if (!email || !name) {

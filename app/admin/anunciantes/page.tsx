@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-const ADMIN_EMAIL = 'saluton@citieapp.com'
+import { ADMIN_EMAIL } from '@/lib/admin'
 
 export default function InviteAdvertiserPage() {
   const router = useRouter()
@@ -41,9 +40,15 @@ export default function InviteAdvertiserPage() {
     setError('')
     setSuccess('')
 
+    const { data: sessionData } = await supabase.auth.getSession()
+    const accessToken = sessionData.session?.access_token
+
     const response = await fetch('/api/invite-advertiser', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify({ email: email.trim(), name: name.trim() }),
     })
 
