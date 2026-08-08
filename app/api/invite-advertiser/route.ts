@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .insert({ email, is_anonymous: false })
+      .insert({ email, is_anonymous: false, auth_user_id: authUserId })
       .select()
       .single()
 
