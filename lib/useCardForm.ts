@@ -65,7 +65,9 @@ export function useCardForm({ eventId }: { eventId: string | null }) {
     return data?.id
   }
 
-  async function submit(): Promise<{ qrCode: string } | null> {
+  // `activateNow` decide si la tarjeta queda visible al instante para quien
+  // escanee, o si se prepara apagada para dispararla durante el evento.
+  async function submit(activateNow: boolean): Promise<{ qrCode: string } | null> {
     if (!title.trim()) {
       setError('El título es obligatorio')
       return null
@@ -100,7 +102,7 @@ export function useCardForm({ eventId }: { eventId: string | null }) {
       active_from: activeFrom ? new Date(activeFrom).toISOString() : null,
       active_until: activeUntil ? new Date(activeUntil).toISOString() : null,
       qr_code,
-      is_triggered: eventId ? false : true,
+      is_triggered: activateNow,
       advertiser_id: advertiserId,
     })
 

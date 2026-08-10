@@ -10,8 +10,8 @@ export default function NewCardPage() {
   const { id } = useParams<{ id: string }>()
   const form = useCardForm({ eventId: id })
 
-  async function handleSubmit() {
-    const result = await form.submit()
+  async function handleSubmit(activateNow: boolean) {
+    const result = await form.submit(activateNow)
     if (result) router.push(`/events/${id}`)
   }
 
@@ -26,7 +26,7 @@ export default function NewCardPage() {
         <CardFormFields
           form={form}
           showSortOrder={true}
-          submitLabel="Crear card"
+          nounLabel="card"
           onSubmit={handleSubmit}
         />
       </div>

@@ -10,8 +10,8 @@ export default function NewIndependentCardPage() {
   const form = useCardForm({ eventId: null })
   const [createdQr, setCreatedQr] = useState('')
 
-  async function handleSubmit() {
-    const result = await form.submit()
+  async function handleSubmit(activateNow: boolean) {
+    const result = await form.submit(activateNow)
     if (result) setCreatedQr(result.qrCode)
   }
 
@@ -57,7 +57,7 @@ export default function NewIndependentCardPage() {
         <CardFormFields
           form={form}
           showSortOrder={false}
-          submitLabel="Crear tarjeta"
+          nounLabel="tarjeta"
           onSubmit={handleSubmit}
         />
       </div>

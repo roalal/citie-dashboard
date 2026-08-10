@@ -3,15 +3,22 @@ import type { UseCardFormReturn } from '@/lib/useCardForm'
 export function CardFormFields({
   form,
   showSortOrder,
-  submitLabel,
+  nounLabel,
   onSubmit,
 }: {
   form: UseCardFormReturn
   showSortOrder: boolean
-  submitLabel: string
-  onSubmit: () => void
+  /** "tarjeta" o "card": el nombre que usa cada pantalla para el mismo objeto. */
+  nounLabel: string
+  onSubmit: (activateNow: boolean) => void
 }) {
   const { fields } = form
+  const busy = form.loading || form.uploadingImage
+  const busyLabel = form.uploadingImage
+    ? 'Subiendo imagen...'
+    : form.loading
+      ? 'Creando...'
+      : null
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-5">
@@ -146,13 +153,26 @@ export function CardFormFields({
 
       {form.error && <p className="text-red-500 text-sm">{form.error}</p>}
 
-      <button
-        onClick={onSubmit}
-        disabled={form.loading || form.uploadingImage}
-        className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
-      >
-        {form.uploadingImage ? 'Subiendo imagen...' : form.loading ? 'Creando...' : submitLabel}
-      </button>
+      <div className="flex flex-col gap-2 pt-1">
+        <p className="text-xs text-gray-500">
+          Solo las {nounLabel}s activas aparecen al escanear el QR. Elige si esta se
+          publica de inmediato o la dejas lista para dispararla durante el evento.
+        </p>
+        <button
+          onClick={() => onSubmit(true)}
+          disabled={busy}
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {busyLabel ?? `Crear ${nounLabel} y activarla ahora`}
+        </button>
+        <button
+          onClick={() => onSubmit(false)}
+          disabled={busy}
+          className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+        >
+          {busyLabel ?? `Crear ${nounLabel} y activarla manualmente después`}
+        </button>
+      </div>
     </div>
   )
 }
