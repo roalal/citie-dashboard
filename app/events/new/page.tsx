@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { QRCodeSVG } from 'qrcode.react'
+import { ScannableQr } from '@/components/ScannableQr'
 
 export default function NewEventPage() {
   const [name, setName] = useState('')
@@ -71,7 +71,7 @@ export default function NewEventPage() {
 
            <div id="event-qr" className="flex flex-col items-center gap-2 w-full">
               <p className="text-sm font-medium text-gray-700">QR del evento</p>
-              <QRCodeSVG value={createdEvent.qr_code} size={180} />
+              <ScannableQr value={createdEvent.qr_code} size={238} />
               <p className="text-xs text-gray-400 font-mono">{createdEvent.qr_code}</p>
               <div className="flex gap-2 w-full">
                 <button

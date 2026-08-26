@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { QRCodeSVG } from 'qrcode.react'
+import { ScannableQr } from '@/components/ScannableQr'
 
 type Card = {
   id: string
@@ -100,7 +100,7 @@ export default function EventDetailPage() {
               </div>
               {event?.qr_code && (
                   <div id="event-qr" className="flex flex-col items-center gap-2">
-                  <QRCodeSVG value={event.qr_code} size={100} />
+                  <ScannableQr value={event.qr_code} size={132} />
                   <p className="text-xs text-gray-400">{event.qr_code}</p>
                 </div>
               )}
