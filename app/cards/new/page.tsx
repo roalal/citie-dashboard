@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { QRCodeSVG } from 'qrcode.react'
+import { ScannableQr } from '@/components/ScannableQr'
 import { useCardForm } from '@/lib/useCardForm'
 import { CardFormFields } from '@/components/CardFormFields'
 import { useState } from 'react'
@@ -24,7 +24,7 @@ export default function NewIndependentCardPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Tarjeta creada!</h2>
               <p className="text-gray-500 text-sm">Escanea este QR para acceder a la tarjeta</p>
             </div>
-            <QRCodeSVG value={createdQr} size={200} />
+            <ScannableQr value={createdQr} size={264} />
             <p className="text-xs text-gray-400 font-mono">{createdQr}</p>
             <div className="flex gap-3 w-full">
               <button

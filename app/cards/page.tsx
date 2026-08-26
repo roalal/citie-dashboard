@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { QRCodeSVG } from 'qrcode.react'
+import { ScannableQr } from '@/components/ScannableQr'
 
 type Card = {
   id: string
@@ -97,7 +97,7 @@ export default function CardsPage() {
             {cards.map((card) => (
               <div key={card.id} className="bg-white rounded-xl border border-gray-200 p-5 flex gap-6 items-start">
                 <div id={`card-qr-${card.id}`}>
-                  <QRCodeSVG value={card.qr_code} size={80} />
+                  <ScannableQr value={card.qr_code} size={106} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
