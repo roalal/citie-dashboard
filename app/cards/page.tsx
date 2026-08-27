@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { confirmAndDelete } from '@/lib/contentApi'
 import Link from 'next/link'
 import { ScannableQr } from '@/components/ScannableQr'
 
@@ -25,6 +26,8 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+  const [actionError, setActionError] = useState('')
+  const [busyId, setBusyId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCards(0)
@@ -57,10 +60,15 @@ export default function CardsPage() {
     fetchCards(0)
   }
 
+  // Antes esto borraba sin comprobar nada y sin mirar el error: si la tarjeta
+  // estaba guardada por alguien, fallaba en silencio y parecía que no pasaba
+  // nada. Ahora el servidor comprueba y explica.
   async function deleteCard(id: string) {
-    if (!confirm('¿Eliminar esta tarjeta?')) return
-    await supabase.from('cards').delete().eq('id', id)
-    fetchCards(0)
+    setBusyId(id)
+    const error = await confirmAndDelete({ type: 'card', id }, 'la tarjeta')
+    setBusyId(null)
+    setActionError(error ?? '')
+    if (!error) fetchCards(0)
   }
 
   return (
@@ -79,6 +87,12 @@ export default function CardsPage() {
             + Nueva tarjeta
           </Link>
         </div>
+
+        {actionError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {actionError}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-gray-400">Cargando...</p>
@@ -149,11 +163,18 @@ export default function CardsPage() {
                   >
                     Descargar QR
                   </button>
+                  <Link
+                    href={`/cards/${card.id}/edit`}
+                    className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
+                  >
+                    Editar
+                  </Link>
                   <button
                     onClick={() => deleteCard(card.id)}
-                    className="text-sm px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition"
+                    disabled={busyId === card.id}
+                    className="text-sm px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition disabled:opacity-40"
                   >
-                    Eliminar
+                    {busyId === card.id ? '...' : 'Eliminar'}
                   </button>
                 </div>
               </div>

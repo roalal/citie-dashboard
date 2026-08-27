@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ScannableQr } from '@/components/ScannableQr'
+import { confirmAndDelete } from '@/lib/contentApi'
 
 type Card = {
   id: string
@@ -28,6 +29,8 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null)
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
+  const [actionError, setActionError] = useState('')
+  const [busyId, setBusyId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -54,6 +57,14 @@ export default function EventDetailPage() {
       .update({ is_triggered: true })
       .eq('id', cardId)
     fetchData()
+  }
+
+  async function removeCard(cardId: string) {
+    setBusyId(cardId)
+    const error = await confirmAndDelete({ type: 'card', id: cardId }, 'la tarjeta')
+    setBusyId(null)
+    setActionError(error ?? '')
+    if (!error) fetchData()
   }
 
   async function untriggerCard(cardId: string) {
@@ -136,6 +147,12 @@ export default function EventDetailPage() {
               Descargar QR
             </button>
             <Link
+              href={`/events/${id}/edit`}
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+            >
+              Editar evento
+            </Link>
+            <Link
               href={`/events/${id}/cards/new`}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
             >
@@ -143,6 +160,12 @@ export default function EventDetailPage() {
             </Link>
           </div>
         </div>
+
+        {actionError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {actionError}
+          </div>
+        )}
 
         {cards.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
@@ -194,6 +217,19 @@ export default function EventDetailPage() {
                       ▶ Disparar
                     </button>
                   )}
+                  <Link
+                    href={`/cards/${card.id}/edit`}
+                    className="text-sm text-gray-500 hover:text-gray-800 px-2 py-1.5"
+                  >
+                    Editar
+                  </Link>
+                  <button
+                    onClick={() => removeCard(card.id)}
+                    disabled={busyId === card.id}
+                    className="text-sm text-red-500 hover:text-red-700 px-2 py-1.5 disabled:opacity-40"
+                  >
+                    {busyId === card.id ? '...' : 'Eliminar'}
+                  </button>
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { confirmAndDelete } from '@/lib/contentApi'
 import Link from 'next/link'
 
 type Event = {
@@ -19,6 +20,8 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+  const [actionError, setActionError] = useState('')
+  const [busyId, setBusyId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEvents(0)
@@ -43,8 +46,21 @@ export default function EventsPage() {
   }
 
   async function updateStatus(id: string, status: string) {
-    await supabase.from('events').update({ status }).eq('id', id)
+    const { error } = await supabase.from('events').update({ status }).eq('id', id)
+    if (error) {
+      setActionError('No se pudo cambiar el estado: ' + error.message)
+      return
+    }
+    setActionError('')
     fetchEvents(0)
+  }
+
+  async function removeEvent(id: string) {
+    setBusyId(id)
+    const error = await confirmAndDelete({ type: 'event', id }, 'el evento')
+    setBusyId(null)
+    setActionError(error ?? '')
+    if (!error) fetchEvents(0)
   }
 
   const statusColor: Record<string, string> = {
@@ -71,6 +87,12 @@ export default function EventsPage() {
             + Nuevo evento
           </Link>
         </div>
+
+        {actionError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {actionError}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-gray-400">Cargando...</p>
@@ -108,6 +130,16 @@ export default function EventsPage() {
                       Finalizar
                     </button>
                   )}
+                  <Link href={`/events/${event.id}/edit`} className="text-sm text-gray-500 hover:text-gray-800 px-3 py-2">
+                    Editar
+                  </Link>
+                  <button
+                    onClick={() => removeEvent(event.id)}
+                    disabled={busyId === event.id}
+                    className="text-sm text-red-500 hover:text-red-700 px-3 py-2 disabled:opacity-40"
+                  >
+                    {busyId === event.id ? '...' : 'Eliminar'}
+                  </button>
                 </div>
               </div>
             ))}
