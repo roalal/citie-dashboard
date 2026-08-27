@@ -1,7 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export function useCardForm({ eventId }: { eventId: string | null }) {
+/**
+ * `cardId` cambia el modo del formulario: sin él se crea una tarjeta nueva,
+ * con él se cargan los valores existentes y `save()` actualiza en su sitio.
+ * El resto del comportamiento —subida de imagen, validación— es el mismo, y
+ * por eso ambas pantallas comparten este hook en vez de duplicarlo.
+ */
+export function useCardForm({
+  eventId,
+  cardId,
+}: {
+  eventId: string | null
+  cardId?: string
+}) {
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [url, setUrl] = useState('')
@@ -14,6 +26,42 @@ export function useCardForm({ eventId }: { eventId: string | null }) {
   const [activeUntil, setActiveUntil] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loadingCard, setLoadingCard] = useState(!!cardId)
+
+  useEffect(() => {
+    if (!cardId) return
+    let cancelled = false
+
+    async function load() {
+      const { data, error } = await supabase
+        .from('cards')
+        .select('title, summary, url, image_url, sort_order, active_from, active_until')
+        .eq('id', cardId)
+        .maybeSingle()
+
+      if (cancelled) return
+      if (error || !data) {
+        setError('No se pudo cargar la tarjeta.')
+        setLoadingCard(false)
+        return
+      }
+
+      setTitle(data.title ?? '')
+      setSummary(data.summary ?? '')
+      setUrl(data.url ?? '')
+      setImageUrl(data.image_url ?? '')
+      setSortOrder(String(data.sort_order ?? 0))
+      // El input datetime-local no acepta zona horaria ni segundos.
+      setActiveFrom(data.active_from ? data.active_from.slice(0, 16) : '')
+      setActiveUntil(data.active_until ? data.active_until.slice(0, 16) : '')
+      setLoadingCard(false)
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [cardId])
 
   function handleImageFileSelected(file: File | null) {
     if (!file) return
@@ -116,6 +164,49 @@ export function useCardForm({ eventId }: { eventId: string | null }) {
     return { qrCode: qr_code }
   }
 
+  /** Actualiza la tarjeta existente. No toca qr_code ni is_triggered: el QR ya
+   *  puede estar impreso, y la activación se maneja desde la pantalla del evento. */
+  async function save(): Promise<boolean> {
+    if (!cardId) return false
+    if (!title.trim()) {
+      setError('El título es obligatorio')
+      return false
+    }
+
+    setLoading(true)
+    setError('')
+    setUploadingImage(!!imageFile)
+
+    const imageResult = await uploadImageIfNeeded()
+    setUploadingImage(false)
+
+    if (imageResult.error) {
+      setError('Error al subir la imagen: ' + imageResult.error)
+      setLoading(false)
+      return false
+    }
+
+    const { error: updateError } = await supabase
+      .from('cards')
+      .update({
+        title: title.trim(),
+        summary: summary.trim(),
+        url: url.trim(),
+        image_url: imageResult.url,
+        sort_order: eventId ? parseInt(sortOrder) || 0 : undefined,
+        active_from: activeFrom ? new Date(activeFrom).toISOString() : null,
+        active_until: activeUntil ? new Date(activeUntil).toISOString() : null,
+      })
+      .eq('id', cardId)
+
+    setLoading(false)
+    if (updateError) {
+      setError('Error al guardar: ' + updateError.message)
+      return false
+    }
+    return true
+  }
+
   return {
     fields: { title, summary, url, imageUrl, imageFile, imagePreview, activeFrom, activeUntil, sortOrder },
     setTitle,
@@ -128,9 +219,11 @@ export function useCardForm({ eventId }: { eventId: string | null }) {
     clearImageFile,
     handleImageUrlChanged,
     loading,
+    loadingCard,
     uploadingImage,
     error,
     submit,
+    save,
   }
 }
 

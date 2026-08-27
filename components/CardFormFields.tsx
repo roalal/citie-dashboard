@@ -5,12 +5,16 @@ export function CardFormFields({
   showSortOrder,
   nounLabel,
   onSubmit,
+  mode = 'create',
 }: {
   form: UseCardFormReturn
   showSortOrder: boolean
   /** "tarjeta" o "card": el nombre que usa cada pantalla para el mismo objeto. */
   nounLabel: string
   onSubmit: (activateNow: boolean) => void
+  /** En edición no se elige activación: el QR ya existe y la activación se
+   *  maneja desde la pantalla del evento. Un solo botón de guardar. */
+  mode?: 'create' | 'edit'
 }) {
   const { fields } = form
   const busy = form.loading || form.uploadingImage
@@ -154,24 +158,36 @@ export function CardFormFields({
       {form.error && <p className="text-red-500 text-sm">{form.error}</p>}
 
       <div className="flex flex-col gap-2 pt-1">
-        <p className="text-xs text-gray-500">
-          Solo las {nounLabel}s activas aparecen al escanear el QR. Elige si esta se
-          publica de inmediato o la dejas lista para dispararla durante el evento.
-        </p>
-        <button
-          onClick={() => onSubmit(true)}
-          disabled={busy}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          {busyLabel ?? `Crear ${nounLabel} y activarla ahora`}
-        </button>
-        <button
-          onClick={() => onSubmit(false)}
-          disabled={busy}
-          className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
-        >
-          {busyLabel ?? `Crear ${nounLabel} y activarla manualmente después`}
-        </button>
+        {mode === 'edit' ? (
+          <button
+            onClick={() => onSubmit(true)}
+            disabled={busy}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            {busyLabel ?? 'Guardar cambios'}
+          </button>
+        ) : (
+          <>
+            <p className="text-xs text-gray-500">
+              Solo las {nounLabel}s activas aparecen al escanear el QR. Elige si esta se
+              publica de inmediato o la dejas lista para dispararla durante el evento.
+            </p>
+            <button
+              onClick={() => onSubmit(true)}
+              disabled={busy}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {busyLabel ?? `Crear ${nounLabel} y activarla ahora`}
+            </button>
+            <button
+              onClick={() => onSubmit(false)}
+              disabled={busy}
+              className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+            >
+              {busyLabel ?? `Crear ${nounLabel} y activarla manualmente después`}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
