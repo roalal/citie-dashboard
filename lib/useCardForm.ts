@@ -2,6 +2,22 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 /**
+ * Muchos organizadores escriben la direccion sin esquema: "chitie.app" en vez
+ * de "https://chitie.app". La app hacia Uri.parse con eso y reventaba al abrir
+ * la tarjeta. El 3 de septiembre de 2026 eran 7 de las 33 tarjetas con url.
+ * Se normaliza al guardar para no seguir generando datos rotos.
+ */
+function normalizarUrl(valor: string): string {
+  const texto = valor.trim()
+  if (!texto) return ''
+  if (/^https?:\/\//i.test(texto)) return texto
+  // Un esquema distinto se deja como esta: no es cosa de este campo decidirlo,
+  // y la app ya descarta lo que no sea http o https.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(texto)) return texto
+  return `https://${texto}`
+}
+
+/**
  * `cardId` cambia el modo del formulario: sin él se crea una tarjeta nueva,
  * con él se cargan los valores existentes y `save()` actualiza en su sitio.
  * El resto del comportamiento —subida de imagen, validación— es el mismo, y
@@ -144,7 +160,7 @@ export function useCardForm({
       event_id: eventId,
       title: title.trim(),
       summary: summary.trim(),
-      url: url.trim(),
+      url: normalizarUrl(url),
       image_url: imageResult.url,
       sort_order: eventId ? parseInt(sortOrder) || 0 : undefined,
       active_from: activeFrom ? new Date(activeFrom).toISOString() : null,
@@ -191,7 +207,7 @@ export function useCardForm({
       .update({
         title: title.trim(),
         summary: summary.trim(),
-        url: url.trim(),
+        url: normalizarUrl(url),
         image_url: imageResult.url,
         sort_order: eventId ? parseInt(sortOrder) || 0 : undefined,
         active_from: activeFrom ? new Date(activeFrom).toISOString() : null,
