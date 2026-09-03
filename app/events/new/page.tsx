@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { ScannableQr } from '@/components/ScannableQr'
+import { descargarQr, nombreQr } from '@/lib/downloadQr'
+
 
 export default function NewEventPage() {
   const [name, setName] = useState('')
@@ -81,30 +83,7 @@ export default function NewEventPage() {
                   Imprimir
                 </button>
                 <button
-                  onClick={() => {
-                    const svg = document.querySelector('#event-qr svg') as SVGElement
-                    if (!svg) return
-                    const canvas = document.createElement('canvas')
-                    canvas.width = 400
-                    canvas.height = 400
-                    const ctx = canvas.getContext('2d')
-                    if (!ctx) return
-                    const img = new Image()
-                    const svgData = new XMLSerializer().serializeToString(svg)
-                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-                    const url = URL.createObjectURL(svgBlob)
-                    img.onload = () => {
-                      ctx.fillStyle = 'white'
-                      ctx.fillRect(0, 0, 400, 400)
-                      ctx.drawImage(img, 0, 0, 400, 400)
-                      URL.revokeObjectURL(url)
-                      const a = document.createElement('a')
-                      a.download = `qr-${createdEvent.name.replace(/\s+/g, '-').toLowerCase()}.png`
-                      a.href = canvas.toDataURL('image/png')
-                      a.click()
-                    }
-                    img.src = url
-                  }}
+                  onClick={() => descargarQr('#event-qr', nombreQr(createdEvent.name))}
                   className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 transition"
                 >
                   Descargar PNG

@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { confirmAndDelete } from '@/lib/contentApi'
 import Link from 'next/link'
 import { ScannableQr } from '@/components/ScannableQr'
+import { descargarQr, nombreQr } from '@/lib/downloadQr'
+
 
 type Card = {
   id: string
@@ -135,30 +137,7 @@ export default function CardsPage() {
                     {card.is_triggered ? 'Desactivar' : 'Activar'}
                   </button>
                   <button
-                    onClick={() => {
-                      const svg = document.querySelector(`#card-qr-${card.id} svg`) as SVGElement
-                      if (!svg) return
-                      const canvas = document.createElement('canvas')
-                      canvas.width = 400
-                      canvas.height = 400
-                      const ctx = canvas.getContext('2d')
-                      if (!ctx) return
-                      const img = new Image()
-                      const svgData = new XMLSerializer().serializeToString(svg)
-                      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-                      const url = URL.createObjectURL(svgBlob)
-                      img.onload = () => {
-                        ctx.fillStyle = 'white'
-                        ctx.fillRect(0, 0, 400, 400)
-                        ctx.drawImage(img, 0, 0, 400, 400)
-                        URL.revokeObjectURL(url)
-                        const a = document.createElement('a')
-                        a.download = `qr-${card.title.replace(/\s+/g, '-').toLowerCase()}.png`
-                        a.href = canvas.toDataURL('image/png')
-                        a.click()
-                      }
-                      img.src = url
-                    }}
+                    onClick={() => descargarQr(`#card-qr-${card.id}`, nombreQr(card.title))}
                     className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
                   >
                     Descargar QR
