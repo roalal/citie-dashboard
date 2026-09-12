@@ -1,5 +1,10 @@
 import type { UseCardFormReturn } from '@/lib/useCardForm'
 
+const pesoLegible = (bytes: number) =>
+  bytes >= 1_000_000
+    ? `${(bytes / 1_000_000).toFixed(1)} MB`
+    : `${Math.round(bytes / 1000)} KB`
+
 export function CardFormFields({
   form,
   showSortOrder,
@@ -17,8 +22,11 @@ export function CardFormFields({
   mode?: 'create' | 'edit'
 }) {
   const { fields } = form
-  const busy = form.loading || form.uploadingImage
-  const busyLabel = form.uploadingImage
+  // Comprimir bloquea el envío: si no, se subiría el original por adelantarse.
+  const busy = form.loading || form.uploadingImage || form.comprimiendo
+  const busyLabel = form.comprimiendo
+    ? 'Optimizando imagen...'
+    : form.uploadingImage
     ? 'Subiendo imagen...'
     : form.loading
       ? 'Creando...'
@@ -80,7 +88,25 @@ export function CardFormFields({
               }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <p className="text-xs text-gray-400 mt-1">JPG, PNG o WebP · Máximo 2 MB</p>
+            <p className="text-xs text-gray-400 mt-1">JPG, PNG o WebP · Máximo 15 MB</p>
+            {form.comprimiendo && (
+              <p className="text-xs text-gray-500 mt-1">Optimizando imagen…</p>
+            )}
+            {!form.comprimiendo && form.imagenInfo && (
+              <p className="text-xs text-gray-500 mt-1">
+                {form.imagenInfo.despues < form.imagenInfo.antes ? (
+                  <>
+                    Optimizada: {pesoLegible(form.imagenInfo.antes)} →{' '}
+                    <span className="text-green-700 font-medium">
+                      {pesoLegible(form.imagenInfo.despues)}
+                    </span>{' '}
+                    ({Math.round(100 - (form.imagenInfo.despues / form.imagenInfo.antes) * 100)}% menos)
+                  </>
+                ) : (
+                  <>Ya estaba optimizada: {pesoLegible(form.imagenInfo.antes)}</>
+                )}
+              </p>
+            )}
           </div>
           {fields.imagePreview && (
             <div className="relative">

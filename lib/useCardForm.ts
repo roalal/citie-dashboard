@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { nuevoCodigoQr } from '@/lib/qrCode'
 import { comprimirImagen } from '@/lib/comprimirImagen'
@@ -39,6 +39,9 @@ export function useCardForm({
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [comprimiendo, setComprimiendo] = useState(false)
+  const previewUrlRef = useRef<string | null>(null)
+  const [imagenInfo, setImagenInfo] = useState<{ antes: number; despues: number } | null>(null)
   const [sortOrder, setSortOrder] = useState('0')
   const [activeFrom, setActiveFrom] = useState('')
   const [activeUntil, setActiveUntil] = useState('')
@@ -81,49 +84,77 @@ export function useCardForm({
     }
   }, [cardId])
 
-  function handleImageFileSelected(file: File | null) {
+  /// Se comprime aquí y no al enviar, por dos razones. La vista previa pasa a
+  /// ser la imagen que de verdad se sube —si la compresión estropeara algo, se
+  /// ve antes de publicar y no después—, y se puede enseñar cuánto bajó, que
+  /// es la única señal de que el proceso funcionó.
+  async function handleImageFileSelected(file: File | null) {
     if (!file) return
     // El tope era de 2 MB porque el archivo se subía tal cual, y eso rechazaba
-    // cualquier foto normal de teléfono. Ahora se comprime antes de subir, así
-    // que el límite solo protege de un archivo absurdo.
+    // cualquier foto normal de teléfono. Ahora se comprime, así que el límite
+    // solo protege de un archivo absurdo.
     if (file.size > 15 * 1024 * 1024) {
       alert('La imagen no puede pesar más de 15 MB')
       return
     }
-    setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
-    setImageUrl('')
+
+    setComprimiendo(true)
+    try {
+      const resultado = await comprimirImagen(file)
+      const base = file.name.replace(/\.[^.]+$/, '') || 'imagen'
+      const definitivo = resultado
+        ? new File([resultado.blob], `${base}.${resultado.extension}`, {
+            type: resultado.tipo,
+          })
+        : file
+
+      liberarPreview()
+      const preview = URL.createObjectURL(definitivo)
+      previewUrlRef.current = preview
+
+      setImageFile(definitivo)
+      setImagenInfo({ antes: file.size, despues: definitivo.size })
+      setImagePreview(preview)
+      setImageUrl('')
+    } finally {
+      setComprimiendo(false)
+    }
+  }
+
+  /// Los object URL no se liberan solos y cada imagen elegida crea uno. La
+  /// referencia va en un ref y no dentro del actualizador de estado: un
+  /// actualizador debe ser puro, y en StrictMode React lo llama dos veces.
+  function liberarPreview() {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current)
+      previewUrlRef.current = null
+    }
+    setImagePreview('')
   }
 
   function clearImageFile() {
+    liberarPreview()
     setImageFile(null)
-    setImagePreview('')
+    setImagenInfo(null)
   }
 
   function handleImageUrlChanged(value: string) {
+    liberarPreview()
     setImageUrl(value)
     setImageFile(null)
-    setImagePreview('')
+    setImagenInfo(null)
   }
 
   async function uploadImageIfNeeded(): Promise<{ url: string; error?: string }> {
     if (!imageFile) return { url: imageUrl.trim() }
 
-    // Comprimir antes de subir. Si no se puede, sube el original: más vale una
-    // tarjeta pesada que una tarjeta que no se crea.
-    const comprimida = await comprimirImagen(imageFile)
-
-    const cuerpo = comprimida ? comprimida.blob : imageFile
-    const fileExt = comprimida
-      ? comprimida.extension
-      : imageFile.name.split('.').pop()
+    // Ya viene comprimido de handleImageFileSelected: aquí solo se sube.
+    const fileExt = imageFile.name.split('.').pop()
     const fileName = `${Date.now()}.${fileExt}`
 
     const { data, error: uploadError } = await supabase.storage
       .from('card-images')
-      .upload(fileName, cuerpo, {
-        contentType: comprimida ? comprimida.tipo : imageFile.type,
-      })
+      .upload(fileName, imageFile, { contentType: imageFile.type })
 
     if (uploadError) return { url: '', error: uploadError.message }
 
@@ -251,6 +282,8 @@ export function useCardForm({
     loading,
     loadingCard,
     uploadingImage,
+    comprimiendo,
+    imagenInfo,
     error,
     submit,
     save,
