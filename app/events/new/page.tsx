@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { ScannableQr } from '@/components/ScannableQr'
 import { descargarQr, nombreQr } from '@/lib/downloadQr'
+import { nuevoCodigoQr } from '@/lib/qrCode'
 
 
 export default function NewEventPage() {
@@ -23,7 +24,7 @@ export default function NewEventPage() {
     setLoading(true)
     setError('')
 
-    const qr_code = `chitie-event-${Date.now()}`
+    const qr_code = nuevoCodigoQr('event')
 
     const EVENT_COLORS = [
       '#2563EB', '#16A34A', '#D97706', '#DB2777',

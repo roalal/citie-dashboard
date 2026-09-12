@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { nuevoCodigoQr } from '@/lib/qrCode'
 
 /**
  * Muchos organizadores escriben la direccion sin esquema: "chitie.app" en vez
@@ -154,7 +155,7 @@ export function useCardForm({
       return null
     }
 
-    const qr_code = `chitie-card-${Date.now()}`
+    const qr_code = nuevoCodigoQr('card')
 
     const { error: insertError } = await supabase.from('cards').insert({
       event_id: eventId,
