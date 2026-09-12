@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { nuevoCodigoQr } from '@/lib/qrCode'
+import { comprimirImagen } from '@/lib/comprimirImagen'
 
 /**
  * Muchos organizadores escriben la direccion sin esquema: "chitie.app" en vez
@@ -82,8 +83,11 @@ export function useCardForm({
 
   function handleImageFileSelected(file: File | null) {
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      alert('La imagen no puede pesar más de 2 MB')
+    // El tope era de 2 MB porque el archivo se subía tal cual, y eso rechazaba
+    // cualquier foto normal de teléfono. Ahora se comprime antes de subir, así
+    // que el límite solo protege de un archivo absurdo.
+    if (file.size > 15 * 1024 * 1024) {
+      alert('La imagen no puede pesar más de 15 MB')
       return
     }
     setImageFile(file)
@@ -105,12 +109,21 @@ export function useCardForm({
   async function uploadImageIfNeeded(): Promise<{ url: string; error?: string }> {
     if (!imageFile) return { url: imageUrl.trim() }
 
-    const fileExt = imageFile.name.split('.').pop()
+    // Comprimir antes de subir. Si no se puede, sube el original: más vale una
+    // tarjeta pesada que una tarjeta que no se crea.
+    const comprimida = await comprimirImagen(imageFile)
+
+    const cuerpo = comprimida ? comprimida.blob : imageFile
+    const fileExt = comprimida
+      ? comprimida.extension
+      : imageFile.name.split('.').pop()
     const fileName = `${Date.now()}.${fileExt}`
 
     const { data, error: uploadError } = await supabase.storage
       .from('card-images')
-      .upload(fileName, imageFile)
+      .upload(fileName, cuerpo, {
+        contentType: comprimida ? comprimida.tipo : imageFile.type,
+      })
 
     if (uploadError) return { url: '', error: uploadError.message }
 
