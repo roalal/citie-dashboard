@@ -41,6 +41,14 @@ export default function Home() {
             </Link>
             {isAdmin && (
               <Link
+                href="/admin/solicitudes"
+                className="text-sm text-gray-700 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+              >
+                Solicitudes
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
                 href="/admin/anunciantes"
                 className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
               >
