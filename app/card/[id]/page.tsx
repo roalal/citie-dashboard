@@ -33,7 +33,8 @@ export async function generateMetadata(
     openGraph: {
       title: card.title,
       description: card.summary || 'Descubre más en Chitie',
-      images: card.image_url ? [card.image_url] : [],
+      // Sin foto propia, la de Chitie: antes salía un enlace sin imagen.
+      images: card.image_url ? [card.image_url] : ['/og.png'],
     },
   }
 }
