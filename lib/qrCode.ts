@@ -26,6 +26,28 @@
 const ALFABETO = '0123456789abcdefghjkmnpqrstvwxyz'
 const LONGITUD = 16
 
+/**
+ * Lo que va DENTRO del QR que se imprime, a partir del código que guarda la
+ * base.
+ *
+ * Un código opaco (`chitie-event-…`) solo lo entiende el escáner de la app: la
+ * cámara normal del teléfono le mostraba texto a quien aún no tenía Chitie, y
+ * el cartel no podía llevarlo a descargarla. Un enlace sí: abre una página en
+ * chitie.app que manda a su tienda, y la app (1.4.0 en adelante) traduce el
+ * enlace de vuelta al código. La base no cambia.
+ *
+ * Mide lo mismo que el código: `https://chitie.app/e/` + 16 caracteres son 37
+ * bytes y caben en la misma versión de QR (29×29 a nivel M).
+ *
+ * Los antiguos `citie-…` se dejan tal cual: la app convierte `/e/` en
+ * `chitie-event-`, así que un enlace no podría devolverles su prefijo.
+ */
+export function contenidoQr(codigo: string): string {
+  const m = codigo.match(/^chitie-(event|card)-([0-9a-z]+)$/)
+  if (!m) return codigo
+  return `https://chitie.app/${m[1] === 'event' ? 'e' : 'c'}/${m[2]}`
+}
+
 export function nuevoCodigoQr(tipo: 'event' | 'card'): string {
   const bytes = new Uint8Array(LONGITUD)
   crypto.getRandomValues(bytes)

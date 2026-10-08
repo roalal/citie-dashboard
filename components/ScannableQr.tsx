@@ -1,4 +1,5 @@
 import { QRCodeSVG } from 'qrcode.react'
+import { contenidoQr } from '@/lib/qrCode'
 
 /**
  * Único punto donde se dibuja un QR de Chitie.
@@ -12,9 +13,11 @@ import { QRCodeSVG } from 'qrcode.react'
  *   la cámara funciona, el decodificador no encuentra nada y no hay error que
  *   reportar. Es lo que reportaron dos usuarios distintos.
  * - El nivel 'L' recupera solo el 7%. En cámaras de gama baja, con desenfoque
- *   o poca luz, no queda ningún margen. Con 'M' sube al 15% y el código sigue
- *   cabiendo en la versión 2 (25x25 módulos) para los identificadores que
- *   generamos, así que no se vuelve más denso de lo que ya era.
+ *   o poca luz, no queda ningún margen. Con 'M' sube al 15%.
+ *
+ * Recibe el código de la base y dibuja su enlace (ver `contenidoQr`), para que
+ * la cámara normal del teléfono lleve a descargar la app. Con el enlace queda
+ * en 29x29 módulos, igual que con el código de 16 caracteres.
  */
 export function ScannableQr({
   value,
@@ -25,7 +28,7 @@ export function ScannableQr({
 }) {
   return (
     <QRCodeSVG
-      value={value}
+      value={contenidoQr(value)}
       size={size}
       marginSize={4}
       level="M"
