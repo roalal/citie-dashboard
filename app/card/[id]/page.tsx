@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Image from 'next/image'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +17,37 @@ async function getCard(id: string) {
     .eq('is_triggered', true)
     .maybeSingle()
   return data
+}
+
+// Quien pide la página para armar la vista previa del enlace (WhatsApp,
+// Telegram, redes) no es una persona abriendo la tarjeta.
+const NO_PERSONAS =
+  /bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack|discord|twitter|linkedin|embedly|vercel/i
+
+/**
+ * Cuenta las aperturas de una tarjeta compartida: es lo que mide cuánto viaja
+ * el contenido fuera del evento. Solo tipo, tarjeta y si fue Android o iPhone;
+ * nada personal. Nunca rompe la página.
+ */
+async function anotarApertura(card: { id: string; event_id: string | null }) {
+  try {
+    const ua = (await headers()).get('user-agent') ?? ''
+    if (!ua || NO_PERSONAS.test(ua)) return
+    const plataforma = /android/i.test(ua)
+      ? 'android'
+      : /iphone|ipad|ipod/i.test(ua)
+        ? 'ios'
+        : 'otro'
+    await supabaseAdmin.from('interacciones').insert({
+      tipo: 'abrir_compartida',
+      card_id: card.id,
+      event_id: card.event_id,
+      origen: 'web',
+      plataforma,
+    })
+  } catch {
+    // Las métricas nunca deben impedir que se vea la tarjeta.
+  }
 }
 
 export async function generateMetadata(
@@ -55,6 +88,8 @@ export default async function CardSharePage(
       </main>
     )
   }
+
+  await anotarApertura(card)
 
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">

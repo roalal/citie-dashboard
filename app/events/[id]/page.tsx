@@ -17,6 +17,28 @@ type Card = {
   url: string
   is_triggered: boolean
   sort_order: number
+  /** Cuándo se retiró por última vez. Nulo = nunca se ha publicado y retirado. */
+  retirada_en: string | null
+}
+
+/**
+ * Tres estados, no dos. "Desactivada" mezclaba la tarjeta preparada que aún no
+ * sale (una sorpresa, un aviso en vivo) con la que ya estuvo publicada y se
+ * retiró; para el asistente no son lo mismo: la retirada la conserva quien ya
+ * estaba en el evento mientras estuvo publicada.
+ */
+function estadoDe(card: Card): 'publicada' | 'retirada' | 'sin_publicar' {
+  if (card.is_triggered) return 'publicada'
+  return card.retirada_en ? 'retirada' : 'sin_publicar'
+}
+
+function horaCorta(iso: string) {
+  return new Date(iso).toLocaleString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 type Event = {
@@ -146,6 +168,14 @@ export default function EventDetailPage() {
           </div>
         )}
 
+        {cards.length > 0 && (
+          <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3 text-xs text-gray-500 leading-relaxed">
+            <b className="text-gray-700">Retirar:</b> deja de mostrarse a quien escanee desde ahora; quien
+            ya estaba en el evento la conserva. <b className="text-gray-700">Eliminar:</b> desaparece para
+            todos, también de Guardados. Para corregir un error, mejor <b className="text-gray-700">Editar</b>.
+          </div>
+        )}
+
         {cards.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <p className="text-gray-400 mb-4">No hay cards en este evento todavía</p>
@@ -158,11 +188,17 @@ export default function EventDetailPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {cards.map((card, index) => (
+            {cards.map((card, index) => {
+              const estado = estadoDe(card)
+              return (
               <div
                 key={card.id}
                 className={`bg-white rounded-xl border p-5 flex items-center justify-between transition ${
-                  card.is_triggered ? 'border-green-400 bg-green-50' : 'border-gray-200'
+                  estado === 'publicada'
+                    ? 'border-green-400 bg-green-50'
+                    : estado === 'retirada'
+                      ? 'border-amber-300 bg-amber-50'
+                      : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center gap-4">
@@ -176,25 +212,40 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
-                  {card.is_triggered ? (
+                  {estado === 'publicada' ? (
                     <>
                       <span className="text-xs text-green-600 font-medium px-2 py-1 bg-green-100 rounded-full">
-                        Activa
+                        Publicada
                       </span>
                       <button
                         onClick={() => untriggerCard(card.id)}
+                        title="Deja de mostrarse a quien escanee desde ahora; quien ya estaba en el evento la conserva."
                         className="text-sm text-gray-500 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition"
                       >
-                        Desactivar
+                        Retirar
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => triggerCard(card.id)}
-                      className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-green-700 transition"
-                    >
-                      ▶ Disparar
-                    </button>
+                    <>
+                      {estado === 'retirada' ? (
+                        <span
+                          className="text-xs text-amber-700 font-medium px-2 py-1 bg-amber-100 rounded-full whitespace-nowrap"
+                          title="La conservan quienes ya estaban en el evento mientras estuvo publicada."
+                        >
+                          Retirada · {horaCorta(card.retirada_en!)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-500 font-medium px-2 py-1 bg-gray-100 rounded-full whitespace-nowrap">
+                          Sin publicar
+                        </span>
+                      )}
+                      <button
+                        onClick={() => triggerCard(card.id)}
+                        className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-green-700 transition whitespace-nowrap"
+                      >
+                        {estado === 'retirada' ? '▶ Volver a publicar' : '▶ Publicar'}
+                      </button>
+                    </>
                   )}
                   <Link
                     href={`/cards/${card.id}/edit`}
@@ -211,7 +262,8 @@ export default function EventDetailPage() {
                   </button>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

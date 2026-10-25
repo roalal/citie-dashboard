@@ -19,6 +19,15 @@ type Card = {
   active_until: string
   is_triggered: boolean
   created_at: string
+  /** Cuándo se retiró por última vez. Nulo = nunca se ha publicado y retirado. */
+  retirada_en: string | null
+}
+
+// Mismos tres estados que en la página del evento.
+function estadoDe(card: Card) {
+  if (card.is_triggered) return { etiqueta: 'Publicada', clase: 'bg-green-100 text-green-700', boton: 'Retirar' }
+  if (card.retirada_en) return { etiqueta: 'Retirada', clase: 'bg-amber-100 text-amber-700', boton: 'Volver a publicar' }
+  return { etiqueta: 'Sin publicar', clase: 'bg-gray-100 text-gray-500', boton: 'Publicar' }
 }
 
 const PAGE_SIZE = 50
@@ -118,8 +127,8 @@ export default function CardsPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-base font-semibold text-gray-800">{card.title}</h2>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${card.is_triggered ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {card.is_triggered ? 'Activa' : 'Inactiva'}
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${estadoDe(card).clase}`}>
+                      {estadoDe(card).etiqueta}
                     </span>
                   </div>
                   {card.summary && <p className="text-gray-500 text-sm mb-2">{card.summary}</p>}
@@ -132,9 +141,10 @@ export default function CardsPage() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => toggleCard(card.id, card.is_triggered)}
+                    title={card.is_triggered ? 'Deja de poder escanearse; quien ya la tiene la conserva.' : undefined}
                     className={`text-sm px-3 py-1.5 rounded-lg transition ${card.is_triggered ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-green-600 text-white hover:bg-green-700'}`}
                   >
-                    {card.is_triggered ? 'Desactivar' : 'Activar'}
+                    {estadoDe(card).boton}
                   </button>
                   <button
                     onClick={() => descargarQr(`#card-qr-${card.id}`, nombreQr(card.title))}

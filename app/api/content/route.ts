@@ -12,14 +12,23 @@ import { ADMIN_EMAIL } from '@/lib/admin'
  * creyendo que no le afecta a nadie. Con la service role key el conteo es real.
  *
  * `action: 'check'` devuelve qué colgaría del borrado, para poder avisar antes
- * de confirmar. `action: 'delete'` ejecuta, hijos primero, y se niega si algún
- * usuario ya guardó contenido: eso se archiva ("Finalizar"), no se borra.
+ * de confirmar. `action: 'delete'` ejecuta, hijos primero.
+ *
+ * Tarjetas: eliminar es la fe de erratas, desaparece para todos, también de
+ * Guardados (para que deje de mostrarse solo a quien escanee desde ahora está
+ * "Retirar"). Si alguien la guardó, se exige `confirmarGuardadas` igual al
+ * conteo actual: el organizador confirmó viendo ese número, y si cambió entre
+ * el aviso y el clic, se le vuelve a preguntar.
+ *
+ * Eventos: se niega si algún usuario guardó contenido; eso se archiva
+ * ("Finalizar"), no se borra.
  */
 
 type Body = {
   action: 'check' | 'delete'
   type: 'event' | 'card'
   id: string
+  confirmarGuardadas?: number
 }
 
 type Caller = { isAdmin: boolean; advertiserId: string | null }
@@ -69,7 +78,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const { action, type, id } = (await req.json()) as Body
+    const { action, type, id, confirmarGuardadas } = (await req.json()) as Body
     if (!id || (type !== 'event' && type !== 'card')) {
       return NextResponse.json({ error: 'Petición inválida' }, { status: 400 })
     }
@@ -95,13 +104,25 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ cards: 1, saved, name: card.title })
       }
 
-      if (saved > 0) {
+      if (saved > 0 && confirmarGuardadas !== saved) {
         return NextResponse.json(
           {
-            error: `No se puede eliminar: ${saved} ${saved === 1 ? 'usuario la tiene' : 'usuarios la tienen'} guardada. Desactívala en su lugar para que deje de aparecer.`,
+            error: `Ahora ${saved} ${saved === 1 ? 'persona la tiene' : 'personas la tienen'} en Guardados. Vuelve a intentarlo para confirmar con ese número.`,
           },
           { status: 409 }
         )
+      }
+
+      // Eliminar también la quita de Guardados: primero esas filas, así no
+      // depende de que la llave foránea esté en cascada.
+      if (saved > 0) {
+        const { error: savedError } = await supabaseAdmin
+          .from('saved_cards')
+          .delete()
+          .eq('card_id', id)
+        if (savedError) {
+          return NextResponse.json({ error: savedError.message }, { status: 400 })
+        }
       }
 
       const { error } = await supabaseAdmin.from('cards').delete().eq('id', id)
