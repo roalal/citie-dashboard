@@ -2,7 +2,7 @@ export default function DeleteAccountPage() {
   return (
     <main style={{ fontFamily: 'sans-serif', maxWidth: '600px', margin: '60px auto', padding: '0 24px' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Eliminar cuenta — Chitie</h1>
-      <p style={{ color: '#6B7280', marginBottom: '32px' }}>Última actualización: junio 2026</p>
+      <p style={{ color: '#6B7280', marginBottom: '32px' }}>Última actualización: octubre 2026</p>
 
       <h2 style={{ fontSize: '18px', marginBottom: '12px' }}>¿Cómo eliminar tu cuenta?</h2>
       <p style={{ marginBottom: '16px', lineHeight: '1.6' }}>
@@ -17,7 +17,21 @@ export default function DeleteAccountPage() {
       <ul style={{ lineHeight: '1.8', paddingLeft: '20px', marginBottom: '24px' }}>
         <li>Tu perfil y credenciales de acceso</li>
         <li>Tu historial de tarjetas guardadas</li>
+        <li>Las notas que escribiste en tus tarjetas</li>
+        <li>El registro de uso ligado a tu cuenta: qué eventos abriste y qué tarjetas abriste, guardaste, compartiste o eliminaste</li>
         <li>El identificador único de tu dispositivo</li>
+      </ul>
+
+      <h2 style={{ fontSize: '18px', marginBottom: '12px' }}>¿Qué se conserva?</h2>
+      <ul style={{ lineHeight: '1.8', paddingLeft: '20px', marginBottom: '24px' }}>
+        <li>
+          Los informes de errores y los reportes que hayas enviado desde la app se guardan en nuestro
+          proveedor de diagnóstico (Sentry) y se borran automáticamente en un máximo de 90 días.
+        </li>
+        <li>
+          Los totales que ya se calcularon para los organizadores (por ejemplo, cuántas personas abrieron
+          una tarjeta) no se recalculan. No contienen datos tuyos ni permiten identificarte.
+        </li>
       </ul>
 
       <h2 style={{ fontSize: '18px', marginBottom: '12px' }}>Tiempo de procesamiento</h2>

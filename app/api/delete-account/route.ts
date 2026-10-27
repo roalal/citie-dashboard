@@ -61,6 +61,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Los registros de uso (desde la app 1.5.1) se guardan con auth.uid(), no
+    // con users.id. La página de eliminación promete borrarlos: lo exige la
+    // política de cuentas de Google Play. Antes del usuario de Auth, para que
+    // no queden ids huérfanos si esto falla a medias.
+    if (authUserId) {
+      for (const tabla of ['interacciones', 'escaneos'] as const) {
+        const { error } = await supabaseAdmin.from(tabla).delete().eq('user_id', authUserId)
+        if (error) {
+          return NextResponse.json({ error: `Error borrando ${tabla}: ${error.message}` }, { status: 400 })
+        }
+      }
+    }
+
     // Deleting the auth user also cascades to its `users` row (if any)
     // via the auth_user_id foreign key — the manual delete above just
     // makes this work for legacy device_id-only rows too.
