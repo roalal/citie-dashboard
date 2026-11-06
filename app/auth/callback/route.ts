@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 /**
  * Regreso de Google (o Microsoft, Apple…). Cambia el código por la sesión y
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   const user = data?.user
   if (error || !user) return login('sesion')
 
-  if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
+  if (!esAdmin(user)) {
     const { data: anunciante } = await supabaseAdmin
       .from('advertisers')
       .select('id')
