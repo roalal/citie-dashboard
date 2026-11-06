@@ -15,8 +15,13 @@ const PUBLIC_PATHS = new Set([
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+  // La sesión de Supabase va en sb-<proyecto>-auth-token (o en trozos .0, .1…).
+  // Al tocar "Continuar con Google" se crea además ...-auth-token-code-verifier,
+  // que no es una sesión: si la persona cancela en Google o algo falla, esa
+  // cookie se queda, y contarla como sesión la dejaba fuera de /login, en un
+  // panel vacío.
   const token = req.cookies.get('sb-access-token') ||
-                req.cookies.getAll().find(c => c.name.includes('auth-token'))
+                req.cookies.getAll().find(c => /-auth-token(\.\d+)?$/.test(c.name))
 
   if (pathname === '/login') {
     if (token) {
