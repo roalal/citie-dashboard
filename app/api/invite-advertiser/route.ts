@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { data: callerData } = await supabaseAdmin.auth.getUser(token)
-    if (callerData?.user?.email !== ADMIN_EMAIL) {
+    if (!esAdmin(callerData?.user)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 

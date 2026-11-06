@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 export default function Home() {
   const router = useRouter()
@@ -16,7 +16,7 @@ export default function Home() {
 
   async function checkIfAdmin() {
     const { data } = await supabase.auth.getUser()
-    setIsAdmin(data.user?.email === ADMIN_EMAIL)
+    setIsAdmin(esAdmin(data.user))
   }
 
   async function handleLogout() {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 export default function InviteAdvertiserPage() {
   const router = useRouter()
@@ -22,7 +22,7 @@ export default function InviteAdvertiserPage() {
 
   async function checkAccess() {
     const { data } = await supabase.auth.getUser()
-    if (data.user?.email === ADMIN_EMAIL) {
+    if (esAdmin(data.user)) {
       setAuthorized(true)
     } else {
       router.push('/')

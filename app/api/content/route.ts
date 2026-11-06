@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 /**
  * Borrado de eventos y tarjetas.
@@ -51,7 +51,7 @@ async function resolveCaller(req: NextRequest): Promise<Caller | null> {
     .maybeSingle()
 
   return {
-    isAdmin: user.email === ADMIN_EMAIL,
+    isAdmin: esAdmin(user),
     advertiserId: advertiser?.id ?? null,
   }
 }

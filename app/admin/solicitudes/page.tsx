@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 type Solicitud = {
   id: string
@@ -61,7 +61,7 @@ export default function SolicitudesPage() {
   useEffect(() => {
     ;(async () => {
       const { data } = await supabase.auth.getUser()
-      if (data.user?.email !== ADMIN_EMAIL) {
+      if (!esAdmin(data.user)) {
         router.push('/')
         return
       }
