@@ -10,7 +10,7 @@ export type ProveedorLogin = {
 /**
  * Los que se ofrecen en el panel. Cada uno debe estar encendido en Supabase →
  * Authentication → Providers, o el botón lleva a un error. Para sumar Microsoft
- * o Apple basta agregarlos aquí cuando estén configurados.
+ * basta agregarlo aquí cuando esté configurado.
  *
  * Solo entra quien ya tiene invitación: si el correo de la cuenta coincide con
  * el de la invitación, Supabase la une a esa cuenta; si no, /auth/callback la
@@ -18,4 +18,5 @@ export type ProveedorLogin = {
  */
 export const PROVEEDORES_LOGIN: ProveedorLogin[] = [
   { id: 'google', etiqueta: 'Continuar con Google' },
+  { id: 'apple', etiqueta: 'Continuar con Apple' },
 ]
