@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { ADMIN_EMAIL } from '@/lib/admin'
+import { esAdmin } from '@/lib/admin'
 
 /**
  * Solicitudes del formulario de chitie.app/contacto.
@@ -9,16 +9,16 @@ import { ADMIN_EMAIL } from '@/lib/admin'
  * puede insertar), así que la lista sale de aquí, con la llave de servicio y
  * solo para la cuenta de administración.
  */
-async function esAdmin(req: NextRequest): Promise<boolean> {
+async function pideElAdmin(req: NextRequest): Promise<boolean> {
   const auth = req.headers.get('authorization')
   const token = auth?.startsWith('Bearer ') ? auth.slice('Bearer '.length) : null
   if (!token) return false
   const { data } = await supabaseAdmin.auth.getUser(token)
-  return data?.user?.email === ADMIN_EMAIL
+  return esAdmin(data?.user)
 }
 
 export async function GET(req: NextRequest) {
-  if (!(await esAdmin(req))) {
+  if (!(await pideElAdmin(req))) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!(await esAdmin(req))) {
+  if (!(await pideElAdmin(req))) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
