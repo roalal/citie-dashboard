@@ -70,12 +70,12 @@ export default function EditEventPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-xl mx-auto">
         <Link href={`/events/${id}`} className="text-sm text-blue-500 hover:underline mb-1 block">
           ← Volver al evento
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Editar evento</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Editar evento</h1>
 
         {loading ? (
           <p className="text-gray-400">Cargando...</p>

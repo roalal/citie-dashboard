@@ -83,12 +83,12 @@ export default function CardsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <Link href="/" className="text-sm text-blue-500 hover:underline mb-1 block">← Inicio</Link>
-            <h1 className="text-3xl font-bold text-gray-900">Tarjetas independientes</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tarjetas independientes</h1>
             <p className="text-gray-500 text-sm mt-1">Cada tarjeta tiene su propio QR único</p>
           </div>
           <Link
@@ -120,11 +120,11 @@ export default function CardsPage() {
         ) : (
           <div className="flex flex-col gap-4">
             {cards.map((card) => (
-              <div key={card.id} className="bg-white rounded-xl border border-gray-200 p-5 flex gap-6 items-start">
+              <div key={card.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
                 <div id={`card-qr-${card.id}`}>
                   <ScannableQr value={card.qr_code} size={106} />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-base font-semibold text-gray-800">{card.title}</h2>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${estadoDe(card).clase}`}>
@@ -138,7 +138,7 @@ export default function CardsPage() {
                     </a>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-row flex-wrap sm:flex-col gap-2">
                   <button
                     onClick={() => toggleCard(card.id, card.is_triggered)}
                     title={card.is_triggered ? 'Deja de poder escanearse; quien ya la tiene la conserva.' : undefined}

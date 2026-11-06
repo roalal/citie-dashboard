@@ -17,9 +17,9 @@ export default function NewIndependentCardPage() {
 
   if (createdQr) {
     return (
-      <main className="min-h-screen bg-gray-50 p-8">
+      <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
         <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center gap-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 flex flex-col items-center gap-6">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Tarjeta creada!</h2>
               <p className="text-gray-500 text-sm">Escanea este QR para acceder a la tarjeta</p>
@@ -47,12 +47,12 @@ export default function NewIndependentCardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
         <Link href="/cards" className="text-sm text-blue-500 hover:underline mb-6 block">
           ← Tarjetas
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nueva tarjeta independiente</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Nueva tarjeta independiente</h1>
 
         <CardFormFields
           form={form}

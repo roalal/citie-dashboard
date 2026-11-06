@@ -59,9 +59,9 @@ export default function NewEventPage() {
 
   if (createdEvent) {
     return (
-      <main className="min-h-screen bg-gray-50 p-8">
+      <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
         <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center gap-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 flex flex-col items-center gap-6">
             <div className="text-center">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-green-600 text-2xl">✓</span>
@@ -116,12 +116,12 @@ export default function NewEventPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
         <Link href="/events" className="text-sm text-blue-500 hover:underline mb-6 block">
           ← Eventos
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nuevo evento</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Nuevo evento</h1>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-5">
           <div>

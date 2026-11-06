@@ -76,12 +76,12 @@ export default function EventsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <Link href="/" className="text-sm text-blue-500 hover:underline mb-1 block">← Inicio</Link>
-            <h1 className="text-3xl font-bold text-gray-900">Eventos en vivo</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Eventos en vivo</h1>
           </div>
           <Link href="/events/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
             + Nuevo evento
@@ -106,7 +106,7 @@ export default function EventsPage() {
         ) : (
           <div className="flex flex-col gap-4">
             {events.map((event) => (
-              <div key={event.id} className="bg-white rounded-xl border border-gray-200 p-6 flex items-center justify-between">
+              <div key={event.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <h2 className="text-lg font-semibold text-gray-800">{event.name}</h2>
@@ -116,7 +116,7 @@ export default function EventsPage() {
                   </div>
                   <p className="text-gray-500 text-sm">{event.description}</p>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex flex-wrap items-center gap-2 sm:ml-4">
                   <Link href={`/events/${event.id}`} className="text-sm text-blue-500 hover:underline px-3 py-2">
                     Ver cards
                   </Link>

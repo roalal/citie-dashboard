@@ -16,12 +16,12 @@ export default function NewCardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
         <Link href={`/events/${id}`} className="text-sm text-blue-500 hover:underline mb-6 block">
           ← Volver al evento
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Nueva card</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Nueva card</h1>
 
         <CardFormFields
           form={form}

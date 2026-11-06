@@ -40,12 +40,12 @@ export default function EditCardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-xl mx-auto">
         <Link href={backHref} className="text-sm text-blue-500 hover:underline mb-1 block">
           ← Volver
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Editar tarjeta</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Editar tarjeta</h1>
         <p className="text-sm text-gray-500 mb-8">
           El código QR no cambia, así que los impresos siguen sirviendo.
         </p>

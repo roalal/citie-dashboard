@@ -111,20 +111,20 @@ export default function EventDetailPage() {
     finished: 'Finalizado',
   }
 
-  if (loading) return <main className="min-h-screen bg-gray-50 p-8"><p className="text-gray-400">Cargando...</p></main>
+  if (loading) return <main className="min-h-screen bg-gray-50 p-4 sm:p-8"><p className="text-gray-400">Cargando...</p></main>
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         <Link href="/events" className="text-sm text-blue-500 hover:underline mb-4 block">
           ← Eventos
         </Link>
 
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-start gap-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-8">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-3xl font-bold text-gray-900">{event?.name}</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{event?.name}</h1>
                   {event && (
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor[event.status]}`}>
                       {statusLabel[event.status]}
@@ -140,7 +140,7 @@ export default function EventDetailPage() {
                 </div>
               )}
             </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => descargarQr('#event-qr', nombreQr(event?.name))}
               className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
@@ -193,7 +193,7 @@ export default function EventDetailPage() {
               return (
               <div
                 key={card.id}
-                className={`bg-white rounded-xl border p-5 flex items-center justify-between transition ${
+                className={`bg-white rounded-xl border p-4 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between transition ${
                   estado === 'publicada'
                     ? 'border-green-400 bg-green-50'
                     : estado === 'retirada'
@@ -211,7 +211,7 @@ export default function EventDetailPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex flex-wrap items-center gap-2 sm:ml-4">
                   {estado === 'publicada' ? (
                     <>
                       <span className="text-xs text-green-600 font-medium px-2 py-1 bg-green-100 rounded-full">

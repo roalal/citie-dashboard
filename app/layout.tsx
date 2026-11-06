@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -29,6 +29,13 @@ export const metadata: Metadata = {
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Chitie: todo tu evento en una sola App" }],
   },
   twitter: { card: "summary_large_image" },
+  applicationName: "Chitie Panel",
+  // En iPhone y iPad, "Agregar a pantalla de inicio" lo abre como app.
+  appleWebApp: { capable: true, title: "Chitie Panel", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2563EB",
 };
 
 export default function RootLayout({

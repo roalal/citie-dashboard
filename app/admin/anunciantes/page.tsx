@@ -79,12 +79,12 @@ export default function InviteAdvertiserPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-md mx-auto">
         <Link href="/" className="text-sm text-blue-500 hover:underline mb-6 block">
           ← Inicio
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Invitar anunciante</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Invitar anunciante</h1>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-5">
           <div>

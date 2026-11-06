@@ -101,14 +101,14 @@ export default function SolicitudesPage() {
   const visibles = verTodas ? solicitudes : pendientes
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-3xl mx-auto">
         <Link href="/" className="text-sm text-blue-500 hover:underline mb-6 block">
           ← Inicio
         </Link>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Solicitudes de contacto</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Solicitudes de contacto</h1>
             <p className="text-sm text-gray-500 mt-1">
               Desde el formulario de chitie.app · {pendientes.length} pendiente{pendientes.length === 1 ? '' : 's'}
             </p>

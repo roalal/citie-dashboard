@@ -80,7 +80,7 @@ export default async function CardSharePage(
 
   if (!card) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4 sm:p-8">
         <div className="text-center">
           <h1 className="text-xl font-bold text-gray-900 mb-2">Contenido no disponible</h1>
           <p className="text-gray-500 text-sm">Esta tarjeta ya no está activa.</p>
