@@ -45,7 +45,18 @@ export default function EventsPage() {
     setLoadingMore(false)
   }
 
-  async function updateStatus(id: string, status: string) {
+  async function updateStatus(id: string, status: string, nombre = '') {
+    // Finalizar saca del evento a todos los que lo siguen en la app y desde aquí
+    // no se puede volver a activar. En el teléfono el botón queda junto a
+    // "Ver cards": se pide confirmación.
+    if (
+      status === 'finished' &&
+      !window.confirm(
+        `¿Finalizar «${nombre}»? Quienes lo siguen en la app dejarán de recibir sus novedades.`,
+      )
+    ) {
+      return
+    }
     const { error } = await supabase.from('events').update({ status }).eq('id', id)
     if (error) {
       setActionError('No se pudo cambiar el estado: ' + error.message)
@@ -126,7 +137,7 @@ export default function EventsPage() {
                     </button>
                   )}
                   {event.status === 'active' && (
-                    <button onClick={() => updateStatus(event.id, 'finished')} className="bg-red-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    <button onClick={() => updateStatus(event.id, 'finished', event.name)} className="bg-red-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-600 transition">
                       Finalizar
                     </button>
                   )}
