@@ -9,6 +9,8 @@ const PUBLIC_PATHS = new Set([
   '/dmca',
   '/delete-account',
   '/api/delete-account',
+  // Regreso de Google y los demás: aún no hay sesión, se crea ahí.
+  '/auth/callback',
 ])
 
 export async function middleware(req: NextRequest) {

@@ -2,6 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { PROVEEDORES_LOGIN, type ProveedorLogin } from '@/lib/proveedoresLogin'
+import { LogoProveedor } from '@/components/LogoProveedor'
+
+const ERRORES: Record<string, string> = {
+  sin_invitacion:
+    'Esa cuenta no tiene acceso al panel. Si ya te invitamos, entra con el mismo correo de la invitación.',
+  proveedor: 'No se completó el inicio de sesión. Intenta de nuevo o entra con tu correo.',
+  sesion: 'No se pudo iniciar sesión. Intenta de nuevo o entra con tu correo.',
+  sin_codigo: 'No se pudo iniciar sesión. Intenta de nuevo o entra con tu correo.',
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,6 +24,23 @@ export default function LoginPage() {
     checkForInvite()
   }, [])
 
+  async function entrarCon(proveedor: ProveedorLogin) {
+    setError('')
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: proveedor.id,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: proveedor.scopes,
+      },
+    })
+    // Si todo va bien, el navegador ya se fue al proveedor.
+    if (error) {
+      setError(ERRORES.proveedor)
+      setLoading(false)
+    }
+  }
+
   function checkForInvite() {
     const hash = window.location.hash
     console.log('Hash detectado:', hash)
@@ -23,6 +50,9 @@ export default function LoginPage() {
       return
     }
     console.log('No se detectó invite, mostrando login normal')
+    // De regreso de /auth/callback cuando algo salió mal.
+    const codigo = new URLSearchParams(window.location.search).get('error')
+    if (codigo) setError(ERRORES[codigo] ?? ERRORES.sesion)
     setCheckingInvite(false)
   }
 
@@ -57,6 +87,29 @@ export default function LoginPage() {
       <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 w-full max-w-sm">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Chitie</h1>
         <p className="text-gray-500 text-sm mb-8">Panel de administración</p>
+
+        {PROVEEDORES_LOGIN.length > 0 && (
+          <>
+            <div className="flex flex-col gap-3">
+              {PROVEEDORES_LOGIN.map((proveedor) => (
+                <button
+                  key={proveedor.id}
+                  onClick={() => entrarCon(proveedor)}
+                  disabled={loading}
+                  className="flex items-center justify-center gap-3 border border-gray-300 bg-white text-gray-700 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  <LogoProveedor id={proveedor.id} />
+                  {proveedor.etiqueta}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 my-6 text-xs text-gray-400">
+              <span className="h-px flex-1 bg-gray-200" />
+              o con tu correo
+              <span className="h-px flex-1 bg-gray-200" />
+            </div>
+          </>
+        )}
 
         <div className="flex flex-col gap-4">
           <div>
