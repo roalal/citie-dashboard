@@ -60,7 +60,11 @@ export default function InviteAdvertiserPage() {
       return
     }
 
-    setSuccess(`Invitación enviada a ${data.email}`)
+    setSuccess(
+      data.existente
+        ? `${data.email} ya tenía cuenta en Chitie: ya es organizador y entra al panel como entra a la app (no se envió correo).`
+        : `Invitación enviada a ${data.email}`
+    )
     setEmail('')
     setName('')
     setLoading(false)
