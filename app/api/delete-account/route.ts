@@ -1,5 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { ADMIN_USER_ID } from '@/lib/admin'
+
+/** La cuenta es la del administrador o la de un organizador (tiene anunciante). */
+async function esCuentaDelPanel(authUserId: string | null, userRowId: string | null): Promise<boolean> {
+  if (authUserId === ADMIN_USER_ID) return true
+  const filtros = [
+    authUserId ? `auth_user_id.eq.${authUserId}` : null,
+    userRowId ? `user_id.eq.${userRowId}` : null,
+  ].filter(Boolean)
+  if (!filtros.length) return false
+  const { data, error } = await supabaseAdmin
+    .from('advertisers')
+    .select('id')
+    .or(filtros.join(','))
+    .limit(1)
+  // Si no se puede comprobar, no se borra: mejor un error que perder una cuenta del panel.
+  if (error) throw error
+  return (data?.length ?? 0) > 0
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,6 +58,20 @@ export async function POST(req: NextRequest) {
         .eq('device_id', device_id)
         .maybeSingle()
       userRowId = data?.id ?? null
+    }
+
+    // Candado: la app y el panel comparten cuentas (el mismo Supabase Auth). Quien
+    // entra a la app con el correo del panel está en esa misma cuenta, y "Eliminar
+    // cuenta" se llevaría la del administrador o la de un organizador con sus
+    // eventos. Esas no se borran desde aquí.
+    if (await esCuentaDelPanel(authUserId, userRowId)) {
+      return NextResponse.json(
+        {
+          error: 'Esta cuenta administra eventos en Chitie. Para borrarla, escríbenos a privacidad@chitie.app.',
+          codigo: 'cuenta_del_panel',
+        },
+        { status: 409 }
+      )
     }
 
     if (userRowId) {
